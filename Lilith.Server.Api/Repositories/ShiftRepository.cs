@@ -7,7 +7,7 @@ namespace Lilith.Server.Repositories;
 
     public interface IShiftRepository
     {
-        Task<ShiftDetail>GetShiftDetailId(Guid shiftId, TimeOnly currentTime);
+        Task<ShiftDetail>GetShiftDetail(Guid shiftId, TimeOnly currentTime);
     }
 
     public class ShiftRepository:IShiftRepository
@@ -19,16 +19,16 @@ namespace Lilith.Server.Repositories;
             _context = context;
         }
 
-        public async Task<ShiftDetail> GetShiftDetailId(Guid shiftId, TimeOnly currentTime)
+        public async Task<ShiftDetail> GetShiftDetail(Guid shiftId, TimeOnly currentTime)
         {
             using var connection = _context.CreateConnection();
             var sql = """
                     SET TIMEZONE='Europe/Madrid';
                     SELECT "Id" as ShiftDetailId, CURRENT_DATE::date AS "Day", CURRENT_DATE::date + "StartTime"::time AS "ShiftStartTime"
                     FROM public."ShiftDetails"
-                    WHERE ShiftId = @shiftId
+                    WHERE "ShiftId" = @ShiftId AND @CurrentTime::TIME BETWEEN "StartTime" AND "EndTime"
                 """;
-            var result = await connection.QueryAsync<ShiftDetail>(sql, shiftId);
+            var result = await connection.QueryAsync<ShiftDetail>(sql, new { ShiftId = shiftId , CurrentTime = currentTime.ToString("HH:mm:ss") });
             return result.FirstOrDefault();
         }
     }

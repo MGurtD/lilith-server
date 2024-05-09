@@ -21,10 +21,12 @@ public class MyBackgroundService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        TimeSpan startTime = DateTime.Now.TimeOfDay;
-        _logger.LogInformation(startTime.ToString());
+        TimeOnly currentTime = TimeOnly.FromDateTime(DateTime.Now);
+        _logger.LogInformation(currentTime.ToString());
         while (!stoppingToken.IsCancellationRequested)
         {
+            //Data única per tots els centres
+            currentTime = TimeOnly.FromDateTime(DateTime.Now);
             _logger.LogInformation($"Executing function at: {DateTime.Now}");
 
             // Create a scope to access scoped services
@@ -32,6 +34,7 @@ public class MyBackgroundService : BackgroundService
             {
 
                 var workcenterService = scope.ServiceProvider.GetRequiredService<IWorkcenterService>();
+                var shiftService = scope.ServiceProvider.GetRequiredService<IShiftService>();
 
                 // Access cached workcenters
                 var workcenters = await workcenterService.GetAllWorkcenters();
@@ -41,10 +44,21 @@ public class MyBackgroundService : BackgroundService
                     {
                         continue;
                     }
-                    _logger.LogInformation(workcenter.WorkcenterName.ToString());
-                    _logger.LogInformation(workcenter.ShiftStartTime.ToString());
-                    _logger.LogInformation(workcenter.ShiftId.ToString());
-                    _logger.LogInformation(workcenter.ShiftDetailId.ToString());
+                    //Recollir el torn teoric pel centre de treball
+                    //Comparar, si es el que toca, actualitzar el endTime
+                    //Si no es el que toca canviar y posar el shiftstarttime, com a starttime del centre
+                    var shiftDetail = await shiftService.GetShiftDetail(workcenter.ShiftId.Value, currentTime);
+                    if (shiftDetail != null)
+                    {
+                        if(shiftDetail.ShiftDetailId == workcenter.ShiftDetailId)
+                        {
+                            _logger.LogInformation("Centre: " + workcenter.WorkcenterName + " actualitzar endTime");
+                        }
+                        else
+                        {
+                            _logger.LogInformation("Centre: " + workcenter.WorkcenterName + " canviar torn actualitzar endTime");
+                        }
+                    }
                 }
             }
 

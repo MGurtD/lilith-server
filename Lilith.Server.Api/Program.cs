@@ -34,6 +34,8 @@ var builder = WebApplication.CreateBuilder(args);
     services.AddScoped<IOperatorService, OperatorService>();
     services.AddScoped<IWorkcenterRepository, WorkcenterRepository>();
     services.AddScoped<IWorkcenterService, WorkcenterService>();
+    services.AddScoped<IShiftRepository, ShiftRepository>();
+    services.AddScoped<IShiftService, ShiftService>();
 
     // background services
     services.AddHostedService<MyBackgroundService>();
