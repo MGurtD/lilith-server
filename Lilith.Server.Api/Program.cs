@@ -32,6 +32,8 @@ var builder = WebApplication.CreateBuilder(args);
     services.AddSingleton<DataContext>();
     services.AddScoped<IHistoricRowRespository, HistoricRowRespository>();
     services.AddScoped<IOperatorService, OperatorService>();
+    services.AddScoped<IWorkcenterRepository, WorkcenterRepository>();
+    services.AddScoped<IWorkcenterService, WorkcenterService>();
 
     // background services
     services.AddHostedService<MyBackgroundService>();
@@ -44,6 +46,8 @@ var app = builder.Build();
     using var scope = app.Services.CreateScope();
     var context = scope.ServiceProvider.GetRequiredService<DataContext>();
     await context.Init();
+    var workcenterService = scope.ServiceProvider.GetRequiredService<IWorkcenterService>();
+    await workcenterService.LoadWorkcenterCache();
 }
 
 // configure HTTP request pipeline

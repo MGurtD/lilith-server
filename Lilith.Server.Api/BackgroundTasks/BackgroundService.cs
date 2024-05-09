@@ -21,6 +21,8 @@ public class MyBackgroundService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        TimeSpan startTime = DateTime.Now.TimeOfDay;
+        _logger.LogInformation(startTime.ToString());
         while (!stoppingToken.IsCancellationRequested)
         {
             _logger.LogInformation($"Executing function at: {DateTime.Now}");
@@ -28,11 +30,22 @@ public class MyBackgroundService : BackgroundService
             // Create a scope to access scoped services
             using (var scope = _serviceScopeFactory.CreateScope())
             {
-                // Retrieve the scoped service within the scope
-                var operatorService = scope.ServiceProvider.GetRequiredService<IOperatorService>();
 
-                // Use the scoped service
-                await operatorService.ClockIn(Guid.NewGuid(), Guid.NewGuid());
+                var workcenterService = scope.ServiceProvider.GetRequiredService<IWorkcenterService>();
+
+                // Access cached workcenters
+                var workcenters = await workcenterService.GetAllWorkcenters();
+                foreach (var workcenter in workcenters)
+                {
+                    if((workcenter.ShiftId is null) || (workcenter.ShiftId.Value.Equals("00000000-0000-0000-0000-000000000000")))
+                    {
+                        continue;
+                    }
+                    _logger.LogInformation(workcenter.WorkcenterName.ToString());
+                    _logger.LogInformation(workcenter.ShiftStartTime.ToString());
+                    _logger.LogInformation(workcenter.ShiftId.ToString());
+                    _logger.LogInformation(workcenter.ShiftDetailId.ToString());
+                }
             }
 
             // Your function logic goes here

@@ -13,7 +13,7 @@ public interface IHistoricRowRespository
 
 public class HistoricRowRespository : IHistoricRowRespository
 {
-    private DataContext _context;
+    private readonly DataContext _context;
 
     public HistoricRowRespository(DataContext context)
     {
