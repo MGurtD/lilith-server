@@ -1,5 +1,6 @@
 ﻿namespace Lilith.Server.BackgroundTasks;
 
+using Lilith.Server.Entities;
 using Lilith.Server.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -22,11 +23,13 @@ public class MyBackgroundService : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         TimeOnly currentTime = TimeOnly.FromDateTime(DateTime.Now);
+        DateTime currentDateTime = DateTime.Now;
         _logger.LogInformation(currentTime.ToString());
         while (!stoppingToken.IsCancellationRequested)
         {
             //Data única per tots els centres
             currentTime = TimeOnly.FromDateTime(DateTime.Now);
+            currentDateTime = DateTime.Now;
             _logger.LogInformation($"Executing function at: {DateTime.Now}");
 
             // Create a scope to access scoped services
@@ -52,19 +55,24 @@ public class MyBackgroundService : BackgroundService
                     {
                         if(shiftDetail.ShiftDetailId == workcenter.ShiftDetailId)
                         {
-                            _logger.LogInformation("Centre: " + workcenter.WorkcenterName + " actualitzar endTime");
+                            if(!await workcenterService.KeepAliveWorkcenter(workcenter.WorkcenterId, currentDateTime))
+                            {
+                                _logger.LogInformation("Error keepalive al centre: " + workcenter.WorkcenterName + " Data " + currentDateTime);
+                            }                         
                         }
                         else
                         {
-                            _logger.LogInformation("Centre: " + workcenter.WorkcenterName + " canviar torn actualitzar endTime");
+                            if(!await workcenterService.UpdateWorkcenterShift(workcenter.WorkcenterId,shiftDetail.ShiftDetailId, currentDateTime))
+                            {
+                                _logger.LogInformation("Error al canviar el torn al centre: " + workcenter.WorkcenterName + " Data " + currentDateTime);
+                            }
+                            
                         }
                     }
                 }
-            }
+            }            
 
-            // Your function logic goes here
-
-            await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken); // Delay for 10 seconds
+            await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken); // Delay for 10 seconds
         }
     }
 
