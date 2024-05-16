@@ -8,11 +8,13 @@
         public Guid AreaId { get; set; }
         public string AreaName { get; set; } = string.Empty;
         public string AreaDescription { get; set; } = string.Empty;
+        public DateTime CurrentDay { get; set; }
         public Guid? ShiftId { get; set; }
         public string ShiftName { get; set; } = string.Empty;
         public Guid ShiftDetailId { get; set; }
         public DateTime ShiftStartTime { get; set; }
         public DateTime ShiftEndTime { get; set; }
+        public int WorkcenterDataId { get; set; }
         public string StatusName { get; set; } = string.Empty;
         public string StatusDescription { get; set; } = string.Empty;
         public string StatusColor { get; set; } = string.Empty;

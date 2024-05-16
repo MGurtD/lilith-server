@@ -9,6 +9,7 @@ namespace Lilith.Server.Services
         Task<List<Workcenter>> GetAllWorkcenters();
         Task<bool> KeepAliveWorkcenter(Guid workcenterId, DateTime timestamp);
         Task<bool> UpdateWorkcenterShift(Guid workcenterId, Guid shiftDetailId, DateTime timestamp);
+        Task<bool> SetWorkcenterDataToWorkcenter(Guid workcenterId, int id);
     }
 
     public class WorkcenterService : IWorkcenterService
@@ -38,6 +39,10 @@ namespace Lilith.Server.Services
         {
             return await _workcenterRepository.UpdateWorkcenterShift(workcenterId, shiftDetailId, timestamp);
 
+        }
+        public async Task<bool> SetWorkcenterDataToWorkcenter(Guid workcenterId, int id)
+        {
+            return await _workcenterRepository.SetWorkcenterDataToWorkcenter(workcenterId, id);
         }
     }
 }

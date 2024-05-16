@@ -49,18 +49,8 @@ public class DataContext
 
     private async Task _initDataModel(IDbConnection connection)
     {
+        
         var sql = """
-                CREATE TABLE IF NOT EXISTS data."HistorialRow" (
-                    "Id" uuid NOT NULL,
-                    "ShiftId" uuid NOT NULL,
-                    "WorkcenterId" uuid NOT NULL,
-                    "StartTime" timestamp without time zone NOT NULL DEFAULT now(),
-                    "EndTime" timestamp without time zone NOT NULL DEFAULT now(),
-                    CONSTRAINT "PK_HistorialRow" PRIMARY KEY ("Id")
-                );
-            """;
-        await connection.ExecuteAsync(sql);
-        sql = """
             CREATE TABLE IF NOT EXISTS data."WorkcenterShift" (
             "Id" int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
             "Day" date NOT NULL,
@@ -89,11 +79,13 @@ public class DataContext
             "AreaId" uuid NOT NULL,
             "AreaName" varchar(50) NOT NULL,
             "AreaDescription" varchar(250) NOT NULL,
+            "CurrentDay" date NOT NULL,
             "ShiftId" uuid NOT NULL,
             "ShiftName" varchar(50) NOT NULL,  
             "ShiftDetailId" uuid,
             "ShiftStartTime" timestamp without time zone,
             "ShiftEndTime" timestamp without time zone,
+            "WorkcenterDataId" int,
             "StatusName" varchar(50),
             "StatusDescription" varchar(250),
             "StatusColor" varchar(20),
@@ -116,10 +108,10 @@ public class DataContext
             SET TIMEZONE='Europe/Madrid';
             INSERT INTO realtime."Workcenters"("WorkcenterId","WorkcenterName", "WorkcenterDescription", 
                                                 "AreaId", "AreaName", "AreaDescription",
-                                                "ShiftId", "ShiftName", "ShiftDetailId", "ShiftStartTime", "ShiftEndTime")
+                                                "CurrentDay","ShiftId", "ShiftName", "ShiftDetailId", "ShiftStartTime", "ShiftEndTime")
             SELECT wc."Id" as "WorkcenterId", wc."Name" as "WorkcenterName", wc."Description" as "WorkcenterDescription",
                    ar."Id" as "AreaId", ar."Name" as "AreaName", ar."Description" as "AreaDescription",
-                   sh."Id" as "ShiftId", sh."Name" as "ShiftName", sd."Id" as "ShiftDetailId", NOW() as "ShiftStartTime", NOW() as "ShiftEndTime"
+                   CURRENT_DATE as "Day", sh."Id" as "ShiftId", sh."Name" as "ShiftName", sd."Id" as "ShiftDetailId", NOW() as "ShiftStartTime", NOW() as "ShiftEndTime"
             FROM public."Workcenters" wc
             INNER JOIN public."Areas" ar ON wc."AreaId" = ar."Id"
             INNER JOIN public."Shifts" sh ON wc."ShiftId" = sh."Id"
