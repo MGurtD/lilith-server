@@ -41,3 +41,4 @@ typings
 bin
 obj
 
+.vs/*.*
