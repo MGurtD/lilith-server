@@ -26,7 +26,13 @@ namespace Lilith.Server.Repositories;
                     SET TIMEZONE='Europe/Madrid';
                     SELECT "Id" as ShiftDetailId, CURRENT_DATE::date AS "Day", CURRENT_DATE::date + "StartTime"::time AS "ShiftStartTime"
                     FROM public."ShiftDetails"
-                    WHERE "ShiftId" = @ShiftId AND @CurrentTime::TIME BETWEEN "StartTime" AND "EndTime"
+                    WHERE "ShiftId" = @ShiftId 
+                    AND 
+                    (
+                    (@CurrentTime::TIME BETWEEN "StartTime" AND "EndTime")
+                    OR
+                    ("StartTime" > "EndTime" AND (@CurrentTime::TIME >= "StartTime" OR @CurrentTime::TIME <= "EndTime"))
+                    );
                 """;
             var result = await connection.QueryAsync<ShiftDetail>(sql, new { ShiftId = shiftId , CurrentTime = currentTime.ToString("HH:mm:ss") });
             return result.FirstOrDefault();
