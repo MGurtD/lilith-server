@@ -8,6 +8,7 @@ namespace Lilith.Server.Repositories;
     public interface IShiftRepository
     {
         Task<ShiftDetail>GetShiftDetail(Guid shiftId, TimeOnly currentTime);
+        Task<WorkcenterData>GetMissingShiftDetails(Guid shiftId, TimeOnly currentTime, Guid workcenterId);
     }
 
     public class ShiftRepository:IShiftRepository
@@ -37,5 +38,15 @@ namespace Lilith.Server.Repositories;
             var result = await connection.QueryAsync<ShiftDetail>(sql, new { ShiftId = shiftId , CurrentTime = currentTime.ToString("HH:mm:ss") });
             return result.FirstOrDefault();
         }
-    }
+        public async Task<WorkcenterData>GetMissingShiftDetails(Guid shiftId, TimeOnly currentTime, Guid workcenterId)
+        {
+        using var connection = _context.CreateConnection();
+        var sql = @"
+                   SET TIMEZONE='Europe/Madrid';
+                   
+                    ";
+        return null;
+
+        }
+}
 
