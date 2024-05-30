@@ -67,6 +67,21 @@ public class DataContext
             );
             """;
         await connection.ExecuteAsync(sql);
+
+        sql = """
+            CREATE TABLE IF NOT EXISTS data."WorkcenterStatus" (
+            "Id" int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+            "WorkcenterDataId" int,
+            "StatusId" uuid NOT NULL,
+            "StatusName" varchar(50),
+            "StatusDescription" varchar(250),
+            "StatusColor" varchar(20),
+            "StartTime" timestamp without time zone,   
+            "EndTime" timestamp without time zone,
+            "WorkcenterStatusHourlyCost" decimal(10,2)
+            );
+            """;
+        await connection.ExecuteAsync(sql);
     }
 
     private async Task _initRealtimeModel(IDbConnection connection)
