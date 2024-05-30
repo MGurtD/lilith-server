@@ -22,27 +22,4 @@ jobs:
         with:
           push: true
           tags: marcgurt/lilith-server:latest
-      - name: Deploy to VPS
-        uses: fifsky/ssh-action@master
-        with:
-          host: 51.75.123.239
-          user: Ubuntu
-          key: asdf
-          args: -tt
-          pass: J0ab#271106
-          command: |
-            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/lilith-server:latest
-            docker stop lilith-server || true
-            docker rm lilith-server || true
-            docker run -d --name lilith-server \
-              -e FileManagment:UploadPath=/app/files \
-              -e  ASPNETCORE_ENVIRONMENT=Production \
-              -e  ConnectionStrings:Default=Host=172.17.0.5;Port=5432;Database=temges;Username=ubuntu;Password=J0ab#271106;\
-              -e  PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
-              -e  APP_UID=1654 \
-              -e  ASPNETCORE_HTTP_PORTS=8080 \
-              -e  DOTNET_RUNNING_IN_CONTAINER=true \
-              -e  DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false \
-              -e  DOTNET_VERSION=8.0.6 \
-              -e  ASPNET_VERSION=8.0.6 \
-              -e  TZ=Europe/Madrid \            
+     
