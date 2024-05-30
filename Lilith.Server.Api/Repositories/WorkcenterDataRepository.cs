@@ -72,8 +72,12 @@ public class WorkcenterDataRepository : IWorkcenterDataRepository
     public async Task<WorkcenterData> GetWorkcenterData(int id)
     {
         using var connection = _context.CreateConnection();
-        var sql ="""
-
-            """
+        var sql = """
+                SELECT "Id", "Day","WorkcenterId", "WorkcenterName", "AreaId", "AreaName", "ShiftId","ShiftName", "ShiftDetailId","IsProductiveTime", "StartTime","EndTime"
+                FROM data."WorkcenterShift"
+                WHERE "Id" = @Id
+            """;
+        var result = connection.QuerySingle<WorkcenterData>(sql, new { Id = id });
+        return result;
     }
 }
