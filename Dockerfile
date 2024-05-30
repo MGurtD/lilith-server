@@ -8,7 +8,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
 WORKDIR /src
 COPY ["Lilith.Server.Api/Lilith.Server.Api.csproj", "Lilith.Server.Api/"]
 
-RUN dotnet restore "Lilith.Server/Lilith.Server.Api.csproj"
+RUN dotnet restore "Lilith.Server.Api/Lilith.Server.Api.csproj"
 COPY . .
 WORKDIR "/src/Lilith.Server.Api"
 RUN dotnet build "Lilith.Server.Api.csproj" -c Release -o /app/build
