@@ -38,6 +38,8 @@ var builder = WebApplication.CreateBuilder(args);
     services.AddScoped<IShiftService, ShiftService>();
     services.AddScoped<IStatusRepository, StatusRepository>();
     services.AddScoped<IStatusService, StatusService>();
+    services.AddScoped<IWorkOrderPhaseRepository, WorkOrderPhaseRepository>();
+    services.AddScoped<IWorkOrderPhaseService, WorkOrderPhaseService>();
 
     services.AddControllers().AddJsonOptions(options =>
     {

@@ -1,7 +1,7 @@
-﻿using Lilith.Server.Contracts.StatusRequest;
-using Lilith.Server.Contracts;
+﻿using Lilith.Server.Contracts;
 using Lilith.Server.Services;
 using Microsoft.AspNetCore.Mvc;
+using Lilith.Server.Contracts.Requests;
 
 namespace Lilith.Server.Controllers;
 

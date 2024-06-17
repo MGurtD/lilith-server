@@ -4,16 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lilith.Server.Contracts.WorkcenterCostResponse;
+namespace Lilith.Server.Contracts.Responses;
 
-public class WorkcenterCostResponse
+public class StatusResponse
 {
     public Guid Id { get; set; }
     public DateTime CreatedOn { get; set; }
     public DateTime UpdatedOn { get; set; }
     public bool Disabled { get; set; } = false;
-    public Guid WorkcenterId { get; set; }    
-    public Guid MachineStatusId { get; set; }    
-    public decimal Cost { get; set; }
-
+    public string Name { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public string Color { get; set; } = string.Empty;
 }

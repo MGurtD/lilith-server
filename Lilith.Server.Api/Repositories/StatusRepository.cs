@@ -1,5 +1,5 @@
 ﻿using Dapper;
-using Lilith.Server.Contracts.StatusResponse;
+using Lilith.Server.Contracts.Responses;
 using Lilith.Server.Helpers.Database;
 
 namespace Lilith.Server.Repositories;

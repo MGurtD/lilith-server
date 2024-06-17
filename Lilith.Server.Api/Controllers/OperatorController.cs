@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Lilith.Server.Contracts;
 using Lilith.Server.Services;
-using Lilith.Server.Contracts.Operators;
+using Lilith.Server.Contracts.Requests;
 
 namespace Lilith.Server.Controllers;
 

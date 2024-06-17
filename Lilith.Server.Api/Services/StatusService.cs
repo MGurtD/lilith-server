@@ -1,4 +1,4 @@
-﻿using Lilith.Server.Contracts.StatusResponse;
+﻿using Lilith.Server.Contracts.Responses;
 using Lilith.Server.Repositories;
 using System.Text.Json;
 

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Lilith.Server.Contracts.Operators;
+namespace Lilith.Server.Contracts.Requests;
 
 public class ClockInOutRequest
 {
