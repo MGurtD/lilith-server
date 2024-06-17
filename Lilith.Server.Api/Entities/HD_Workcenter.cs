@@ -1,6 +1,6 @@
 ﻿namespace Lilith.Server.Entities
 {
-    public class WorkcenterData
+    public class HD_Workcenter
     {
         public int Id { get; set; }
         public DateTime Day { get; set; }

@@ -1,4 +1,6 @@
-﻿using Lilith.Server.Repositories;
+﻿using Lilith.Server.Entities;
+using Lilith.Server.Repositories;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 namespace Lilith.Server.Services;
 
@@ -7,13 +9,14 @@ public interface IWorkcenterDataService
     Task<int> OpenWorkcenterData(Guid workcenterId);
     Task<bool> KeepAliveWorkcenterData(int id, DateTime currentTime);
     Task<bool> CloseWorkcenterData(int id, DateTime endTime);
+    Task<HD_Workcenter> GetWorkcenterData(int id);
 
 }
-public class WorkcenterDataService : IWorkcenterDataService
+public class HD_WorkcenterService : IWorkcenterDataService
 {
     private readonly IWorkcenterDataRepository _workcenterDataRepository;
 
-    public WorkcenterDataService(IWorkcenterDataRepository workcenterDataRepository)
+    public HD_WorkcenterService(IWorkcenterDataRepository workcenterDataRepository)
     {
         _workcenterDataRepository = workcenterDataRepository;
     }
@@ -29,5 +32,9 @@ public class WorkcenterDataService : IWorkcenterDataService
     public async Task<bool> CloseWorkcenterData(int id, DateTime endTime)
     {
         return await _workcenterDataRepository.CloseWorkcenterData(id, endTime);
+    }
+    public async Task<HD_Workcenter> GetWorkcenterData(int id)
+    {
+        return await _workcenterDataRepository.GetWorkcenterData(id);
     }
 }

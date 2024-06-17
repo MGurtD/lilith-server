@@ -13,13 +13,13 @@ public interface IWorkcenterDataRepository
     Task<int> OpenWorkcenterData(Guid workcenterId);
     Task<bool> KeepAliveWorkcenterData(int id, DateTime currentTime);
     Task<bool> CloseWorkcenterData(int id, DateTime endTime);
-    Task<WorkcenterData> GetWorkcenterData(int id);
+    Task<HD_Workcenter> GetWorkcenterData(int id);
 }
-public class WorkcenterDataRepository : IWorkcenterDataRepository
+public class HD_WorkcenterRepository : IWorkcenterDataRepository
 {
     private readonly DataContext _context;
 
-    public WorkcenterDataRepository(DataContext context)
+    public HD_WorkcenterRepository(DataContext context)
     {
         _context = context;
     }
@@ -69,7 +69,7 @@ public class WorkcenterDataRepository : IWorkcenterDataRepository
         return await KeepAliveWorkcenterData(Id, endTime);
     }
 
-    public async Task<WorkcenterData> GetWorkcenterData(int id)
+    public async Task<HD_Workcenter> GetWorkcenterData(int id)
     {
         using var connection = _context.CreateConnection();
         var sql = """
@@ -77,7 +77,7 @@ public class WorkcenterDataRepository : IWorkcenterDataRepository
                 FROM data."WorkcenterShift"
                 WHERE "Id" = @Id
             """;
-        var result = connection.QuerySingle<WorkcenterData>(sql, new { Id = id });
+        var result = connection.QuerySingle<HD_Workcenter>(sql, new { Id = id });
         return result;
     }
 }

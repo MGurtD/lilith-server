@@ -8,13 +8,12 @@ namespace Lilith.Server.Services
         Task LoadWorkcenterCache();
         Task<List<Workcenter>> GetAllWorkcenters();
         Task<bool> KeepAliveWorkcenter(Guid workcenterId, DateTime timestamp);
-        Task<bool> UpdateWorkcenterShift(Guid workcenterId, Guid shiftDetailId, DateTime timestamp);
-        Task<bool> SetWorkcenterDataToWorkcenter(Guid workcenterId, int id);
+        Task<Workcenter> GetWorkcenterById(Guid workcenterId);
     }
 
     public class WorkcenterService : IWorkcenterService
     {
-        private readonly IWorkcenterRepository _workcenterRepository;
+        private readonly IWorkcenterRepository _workcenterRepository;        
         public WorkcenterService(IWorkcenterRepository workcenterRepository)
         {
             _workcenterRepository = workcenterRepository;
@@ -22,7 +21,7 @@ namespace Lilith.Server.Services
 
         public async Task LoadWorkcenterCache()
         {
-            WorkcenterCache.WorkcenterRT = await _workcenterRepository.GetAllWorkcentersAsync();
+            WorkcenterCache.WorkcenterRT = await _workcenterRepository.GetAllWorkcenters();
         }
 
         public async Task<List<Workcenter>> GetAllWorkcenters()
@@ -34,15 +33,9 @@ namespace Lilith.Server.Services
         {
             return await _workcenterRepository.KeepAliveWorkcenter(workcenterId, timestamp);
         }
-
-        public async Task<bool> UpdateWorkcenterShift(Guid workcenterId, Guid shiftDetailId, DateTime timestamp)
+        public Task<Workcenter>GetWorkcenterById(Guid workcenterId)
         {
-            return await _workcenterRepository.UpdateWorkcenterShift(workcenterId, shiftDetailId, timestamp);
-
-        }
-        public async Task<bool> SetWorkcenterDataToWorkcenter(Guid workcenterId, int id)
-        {
-            return await _workcenterRepository.SetWorkcenterDataToWorkcenter(workcenterId, id);
+            return _workcenterRepository.GetWorkcenterById(workcenterId);
         }
     }
 }

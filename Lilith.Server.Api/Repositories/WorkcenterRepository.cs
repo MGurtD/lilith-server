@@ -6,12 +6,11 @@ namespace Lilith.Server.Repositories;
 
 public interface IWorkcenterRepository
 {
-    Task<List<Workcenter>> GetAllWorkcentersAsync();
-    Task<bool> UpdateWorkcenterShift(Guid workcenterId, Guid shiftDetailId, DateTime startTime);
-    Task<bool> KeepAliveWorkcenter(Guid workcenterId, DateTime timestamp);
-    Task<bool> SetWorkcenterDataToWorkcenter(Guid workcenterId, int id);
+    Task<List<Workcenter>> GetAllWorkcenters();    
+    Task<bool> KeepAliveWorkcenter(Guid workcenterId, DateTime timestamp);       
+    Task<Workcenter>GetWorkcenterById(Guid workcenterId);
 }
-public class WorkcenterRepository: IWorkcenterRepository
+public class WorkcenterRepository : IWorkcenterRepository
 {
     private readonly DataContext _context;
 
@@ -20,18 +19,18 @@ public class WorkcenterRepository: IWorkcenterRepository
         _context = context;
     }
 
-    public async Task<List<Workcenter>> GetAllWorkcentersAsync()
+    public async Task<List<Workcenter>> GetAllWorkcenters()
     {
         using var connection = _context.CreateConnection();
         var sql = """
     SELECT "WorkcenterId", "WorkcenterName", "WorkcenterDescription", "AreaId", 
-           "AreaName", "AreaDescription", "CurrentDay", "ShiftId", "ShiftName", "ShiftDetailId", 
+           "AreaName", "AreaDescription", "CurrentDay", "CurrentTime", "ShiftId", "ShiftName", "ShiftDetailId", 
            "ShiftStartTime", "ShiftEndTime","WorkcenterDataId", "StatusName", "StatusDescription", 
            "StatusColor", "StatusStartTime", "StatusEndTime", "WorkOrderCode", 
            "ReferenceCode", "ReferenceDescription", "PhaseCode", "PhaseDescription", 
            "PhaseStartTime", "PhaseEndTime", "CounterOk", "CounterKo"
     FROM realtime."Workcenters"
-    """; 
+    """;
 
         var result = await connection.QueryAsync<Workcenter>(sql);
         return result.ToList();
@@ -43,34 +42,12 @@ public class WorkcenterRepository: IWorkcenterRepository
         var sql = """
             SET TIMEZONE='Europe/Madrid';
             UPDATE realtime."Workcenters"
-            SET "ShiftEndTime" = @Timestamp
+            SET "CurrentTime" = @Timestamp,
+                "StatusEndTime" = CASE WHEN "StatusName" IS NULL THEN NULL ELSE @Timestamp END,
+                "PhaseEndTime" = CASE WHEN "PhaseCode" IS NULL THEN NULL ELSE @Timestamp END
             WHERE "WorkcenterId" = @WorkcenterId
             """;
         var affectedRows = await connection.ExecuteAsync(sql, new { Timestamp = timestamp, WorkcenterId = workcenterId });
-        if(affectedRows > 0)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-        
-    }
-
-    public async Task<bool> UpdateWorkcenterShift(Guid workcenterId, Guid shiftDetailId, DateTime timestamp)
-    {
-        using var connection = _context.CreateConnection();
-        var sql = """
-            SET TIMEZONE='Europe/Madrid';
-            UPDATE realtime."Workcenters"
-            SET "ShiftDetailId" = @ShiftDetailId,
-                 "ShiftStartTime" = @Timestamp,
-                 "ShiftEndTime" = NOW(),
-                 "CurrentDay" = CURRENT_DATE
-            WHERE "WorkcenterId" = @WorkcenterId
-            """;
-        var affectedRows = await connection.ExecuteAsync(sql, new {ShiftDetailId = shiftDetailId, Timestamp = timestamp, WorkcenterId = workcenterId});
         if (affectedRows > 0)
         {
             return true;
@@ -79,25 +56,25 @@ public class WorkcenterRepository: IWorkcenterRepository
         {
             return false;
         }
+
     }
 
-    public async Task<bool> SetWorkcenterDataToWorkcenter(Guid workcenterId, int id)
+    
+
+    public async Task<Workcenter> GetWorkcenterById(Guid workcenterId)
     {
         using var connection = _context.CreateConnection();
         var sql = """
-            SET TIMEZONE='Europe/Madrid';
-            UPDATE realtime."Workcenters"
-            SET "WorkcenterDataId" = @Id
-            WHERE "WorkcenterId" = @WorkcenterId
-            """;
-        var affectedRows = await connection.ExecuteAsync(sql, new { Id = id, WorkcenterId = workcenterId });
-        if (affectedRows > 0)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+                SELECT "WorkcenterId", "WorkcenterName", "WorkcenterDescription", "AreaId", 
+                       "AreaName", "AreaDescription", "CurrentDay", "CurrentTime", "ShiftId", "ShiftName", "ShiftDetailId", 
+                       "ShiftStartTime", "ShiftEndTime","WorkcenterDataId", "StatusName", "StatusDescription", 
+                       "StatusColor", "StatusStartTime", "StatusEndTime", "WorkOrderCode", 
+                       "ReferenceCode", "ReferenceDescription", "PhaseCode", "PhaseDescription", 
+                       "PhaseStartTime", "PhaseEndTime", "CounterOk", "CounterKo"
+                FROM realtime."Workcenters"
+                WHERE "WorkcenterId" = @Id
+                """;
+        var result = connection.QuerySingle<Workcenter>(sql, new { Id = workcenterId });
+        return result;
     }
 }

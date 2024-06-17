@@ -9,6 +9,7 @@
         public string AreaName { get; set; } = string.Empty;
         public string AreaDescription { get; set; } = string.Empty;
         public DateTime CurrentDay { get; set; }
+        public TimeSpan CurrentTime { get; set; }
         public Guid? ShiftId { get; set; }
         public string ShiftName { get; set; } = string.Empty;
         public Guid ShiftDetailId { get; set; }

@@ -34,10 +34,18 @@ var builder = WebApplication.CreateBuilder(args);
     services.AddScoped<IOperatorService, OperatorService>();
     services.AddScoped<IWorkcenterRepository, WorkcenterRepository>();
     services.AddScoped<IWorkcenterService, WorkcenterService>();
-    services.AddScoped<IWorkcenterDataRepository, WorkcenterDataRepository>();
-    services.AddScoped<IWorkcenterDataService, WorkcenterDataService>();
     services.AddScoped<IShiftRepository, ShiftRepository>();
     services.AddScoped<IShiftService, ShiftService>();
+    services.AddScoped<IStatusRepository, StatusRepository>();
+    services.AddScoped<IStatusService, StatusService>();
+
+    services.AddControllers().AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+    });
+
+
+    services.AddHttpClient();
 
     // background services
     services.AddHostedService<MyBackgroundService>();

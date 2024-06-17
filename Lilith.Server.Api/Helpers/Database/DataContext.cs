@@ -95,6 +95,7 @@ public class DataContext
             "AreaName" varchar(50) NOT NULL,
             "AreaDescription" varchar(250) NOT NULL,
             "CurrentDay" date NOT NULL,
+            "CurrentTime" time NOT NULL,
             "ShiftId" uuid NOT NULL,
             "ShiftName" varchar(50) NOT NULL,  
             "ShiftDetailId" uuid,
@@ -123,10 +124,10 @@ public class DataContext
             SET TIMEZONE='Europe/Madrid';
             INSERT INTO realtime."Workcenters"("WorkcenterId","WorkcenterName", "WorkcenterDescription", 
                                                 "AreaId", "AreaName", "AreaDescription",
-                                                "CurrentDay","ShiftId", "ShiftName", "ShiftDetailId", "ShiftStartTime", "ShiftEndTime")
+                                                "CurrentDay","CurrentTime", "ShiftId", "ShiftName", "ShiftDetailId", "ShiftStartTime", "ShiftEndTime")
             SELECT wc."Id" as "WorkcenterId", wc."Name" as "WorkcenterName", wc."Description" as "WorkcenterDescription",
                    ar."Id" as "AreaId", ar."Name" as "AreaName", ar."Description" as "AreaDescription",
-                   CURRENT_DATE as "Day", sh."Id" as "ShiftId", sh."Name" as "ShiftName", sd."Id" as "ShiftDetailId", NOW() as "ShiftStartTime", NOW() as "ShiftEndTime"
+                   CURRENT_DATE as "Day",CURRENT_TIME as "CurrentTime", sh."Id" as "ShiftId", sh."Name" as "ShiftName", sd."Id" as "ShiftDetailId", NOW() as "ShiftStartTime", NOW() as "ShiftEndTime"
             FROM public."Workcenters" wc
             INNER JOIN public."Areas" ar ON wc."AreaId" = ar."Id"
             INNER JOIN public."Shifts" sh ON wc."ShiftId" = sh."Id"
