@@ -22,3 +22,4 @@ jobs:
         with:
           push: true
           tags: marcgurt/lilith-server:latest
+     
