@@ -7,7 +7,8 @@ namespace Lilith.Server.Repositories;
 
 public interface IWorkOrderPhaseRepository
 {
-    Task<bool> SetSetPhaseToWorkcenter(WorkOrderPhase workorderphase, Guid workcenterId);
+    Task<bool> SetPhaseToWorkcenter(WorkOrderPhase workorderphase, Guid workcenterId);
+    Task<bool> UnsetPhaseFromWorkcenter(WorkOrderPhase workorderphase, Guid workcenterId);
 }
 public class WorkOrderPhaseRepository : IWorkOrderPhaseRepository
 {
@@ -18,32 +19,48 @@ public class WorkOrderPhaseRepository : IWorkOrderPhaseRepository
         _context = context;
     }
 
-    public async Task<bool> SetSetPhaseToWorkcenter(WorkOrderPhase workorderphase, Guid workcenterId)
+    public async Task<bool> SetPhaseToWorkcenter(WorkOrderPhase workorderphase, Guid workcenterId)
     {
         using var connection = _context.CreateConnection();
         var sql = """
             SET TIMEZONE='Europe/Madrid';
-            UPDATE realtime."Workcenters"
-            SET "WorkOrderCode" = @WorkOrderCode,
-                "ReferenceCode" = @ReferenceCode,
-                "ReferenceDescription" = @ReferenceDescription,
-                "PhaseCode" = @PhaseCode,
-                "PhaseDescription" = @PhaseDescription,
-                "PhaseStartTime" = NOW(),
-                "PhaseEndTime" = NOW(),
-                "CounterOk" = 0,
-                "CounterKo" = 0
-            WHERE "WorkcenterId" = @WorkcenterId 
+            INSERT INTO realtime."Workcenters"("WorkcenterId", "WorkOrderCode", "ReferenceCode", "ReferenceDescription", 
+                                                "PhaseId", "PhaseCode", "PhaseDescription", "PhaseStartTime", "PhaseEndTime",
+                                                "CounterOk", "CounterKo")
+            VALUES(@WorkcenterId, @WorkOrderCode, @ReferenceCode, @ReferenceDescription,
+                    @PhaseId, @PhaseCode, @PhaseDescription, NOW(), NOW(), 0, 0)
             """;
         var affectedRows = await connection.ExecuteAsync(sql, new
         {
             WorkOrderCode = workorderphase.WorkOrderCode,
             ReferenceCode = workorderphase.ReferenceCode,
             ReferenceDescription = workorderphase.ReferenceDescription,
+            PhaseId = workorderphase.PhaseId,
             PhaseCode = workorderphase.PhaseCode,
             PhaseDescription = workorderphase.PhaseDescription,
             workcenterId = workcenterId
         }) ;
+        if (affectedRows > 0)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    public async Task<bool> UnsetPhaseFromWorkcenter(WorkOrderPhase workorderphase, Guid workcenterId)
+    {
+        using var connection = _context.CreateConnection();
+        var sql = """
+            DELETE FROM realtime."Workcenters" WHERE "WorkcenterId" = @WorkcenterId AND "PhaseId" = @PhaseId
+            """;
+        var affectedRows = await connection.ExecuteAsync(sql, new
+        {
+            workcenterId = workcenterId,
+            PhaseId = workorderphase.PhaseId
+
+        });
         if (affectedRows > 0)
         {
             return true;

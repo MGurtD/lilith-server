@@ -23,4 +23,19 @@ public class WorkOrderPhaseController(IWorkOrderPhaseService workOrderPhaseServi
         }
         return Ok(new GenericResponse<bool>(true));
     }
+
+    [HttpPost("/WorkOrderPhase/Close")]
+    public async Task<IActionResult> Close([FromBody] WorkOrderPhaseRequest request)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest();
+        }
+        var result = await _workOrderPhaseService.UnsetPhaseFromWorkcenter(request.WorkOrderPhaseId, request.WorkcenterId);
+        if (!result)
+        {
+            return BadRequest();
+        }
+        return Ok(new GenericResponse<bool>(true));
+    }
 }

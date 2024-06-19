@@ -8,7 +8,10 @@ namespace Lilith.Server.Services;
 public interface IWorkOrderPhaseService
 {
     Task<WorkOrderPhaseResponse?> GetWorkOrderPhaseById(Guid workOrderPhaseId);
+    Task<WorkOrderResponse?> GetWorkOrderById(Guid workOrderId);
     Task<bool> SetPhaseToWorkcenter(Guid workOrderPhaseId, Guid workcenterId);
+    Task<bool> UnsetPhaseFromWorkcenter(Guid workOrderPhaseId, Guid workcenterId);
+    Task<ReferenceResponse?> GetReferenceById(Guid referenceId);
 }
 public class WorkOrderPhaseService:IWorkOrderPhaseService
 {
@@ -99,15 +102,16 @@ public class WorkOrderPhaseService:IWorkOrderPhaseService
         }
     }
 
-    public async Task<bool> SetPhaseToWorkcenter(Guid workOrderPhaseId, Guid workcenterId)
+    private async Task<WorkOrderPhase>CreatePhase(Guid workOrderPhaseId)
     {
+        var wo = new WorkOrderPhase { };
         var phase = await GetWorkOrderPhaseById(workOrderPhaseId);
-        if (phase == null) { return false; }
+        if (phase == null) { return wo; }
         var workorder = await GetWorkOrderById(phase.WorkOrderId);
-        if (workorder == null) { return false; }
+        if (workorder == null) { return wo; }
         var reference = await GetReferenceById(workorder.ReferenceId);
-        if (reference == null) { return false; }
-        var wo = new WorkOrderPhase
+        if (reference == null) { return wo; }
+        wo = new WorkOrderPhase
         {
             WorkOrderCode = workorder.Code,
             ReferenceCode = reference.Code,
@@ -115,7 +119,22 @@ public class WorkOrderPhaseService:IWorkOrderPhaseService
             PhaseCode = phase.Code,
             PhaseDescription = phase.Description
         };
-        if(!await _workOrderPhaseRepository.SetSetPhaseToWorkcenter(wo, workcenterId))
+        return wo;
+    }
+    public async Task<bool> SetPhaseToWorkcenter(Guid workOrderPhaseId, Guid workcenterId)
+    {
+        var wo = await CreatePhase(workOrderPhaseId);
+        if(!await _workOrderPhaseRepository.SetPhaseToWorkcenter(wo, workcenterId))
+        {
+            return false;
+        }
+        await _workcenterService.LoadWorkcenterCache();
+        return true;
+    }
+    public async Task<bool> UnsetPhaseFromWorkcenter(Guid workOrderPhaseId, Guid workcenterId)
+    {
+        var wo = await CreatePhase(workOrderPhaseId);
+        if (!await _workOrderPhaseRepository.UnsetPhaseFromWorkcenter(wo, workcenterId))
         {
             return false;
         }

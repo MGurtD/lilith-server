@@ -5,6 +5,7 @@ public class WorkOrderPhase
     public string WorkOrderCode {  get; set; }
     public string ReferenceCode { get; set; }
     public string ReferenceDescription { get; set; }
+    public Guid PhaseId { get; set; }
     public string PhaseCode { get; set; }
     public string PhaseDescription { get; set; }
     public DateTime PhaseStartTime { get; set; }

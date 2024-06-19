@@ -106,16 +106,7 @@ public class DataContext
             "StatusDescription" varchar(250),
             "StatusColor" varchar(20),
             "StatusStartTime" timestamp without time zone,   
-            "StatusEndTime" timestamp without time zone,
-            "WorkOrderCode" varchar(50),
-            "ReferenceCode" varchar(50),
-            "ReferenceDescription" varchar(250),
-            "PhaseCode" varchar(50),
-            "PhaseDescription" varchar(250),
-            "PhaseStartTime" timestamp without time zone,
-            "PhaseEndTime" timestamp without time zone,
-            "CounterOk" decimal(15,5),
-            "CounterKo" decimal(15,5)
+            "StatusEndTime" timestamp without time zone            
             );
             """;
         await connection.ExecuteAsync(sql);
@@ -140,6 +131,32 @@ public class DataContext
             """;
         await connection.ExecuteAsync(sql);
 
+        sql = """ 
+            CREATE TABLE realtime."WorkOrders" (
+            "WorkcenterId" uuid NOT NULL,
+            "WorkOrderCode" varchar(50),
+            "ReferenceCode" varchar(50),
+            "ReferenceDescription" varchar(250),
+            "PhaseId" uuid NOT NULL,
+            "PhaseCode" varchar(50),
+            "PhaseDescription" varchar(250),
+            "PhaseStartTime" timestamp without time zone,
+            "PhaseEndTime" timestamp without time zone,
+            "CounterOk" decimal(15,5),
+            "CounterKo" decimal(15,5))
+            """;
+        await connection.ExecuteAsync(sql);
+
+        sql = """
+            CREATE TABLE realtime."Operators" (
+            "WorkcenterId" uuid NOT NULL,
+            "OperatorCode" varchar(50) NOT NULL,
+            "OperatorName" varchar(200) NOT NULL,
+            "OperatorTypeName" varchar(50) NOT NULL,
+            "OperatorTypeDescription" varchar(50) NOT NULL
+            )
+            """;
+        await connection.ExecuteAsync(sql);
         //Actualitzar schema data
     }
 }
