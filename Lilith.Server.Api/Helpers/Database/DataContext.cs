@@ -132,7 +132,7 @@ public class DataContext
         await connection.ExecuteAsync(sql);
 
         sql = """ 
-            CREATE TABLE realtime."WorkOrders" (
+            CREATE TABLE IF NOT EXISTS realtime."WorkOrders" (
             "WorkcenterId" uuid NOT NULL,
             "WorkOrderCode" varchar(50),
             "ReferenceCode" varchar(50),
@@ -148,12 +148,15 @@ public class DataContext
         await connection.ExecuteAsync(sql);
 
         sql = """
-            CREATE TABLE realtime."Operators" (
+            CREATE TABLE IF NOT EXISTS realtime."Operators" (
             "WorkcenterId" uuid NOT NULL,
+            "OperatorId" uuid NOT NULL,
             "OperatorCode" varchar(50) NOT NULL,
             "OperatorName" varchar(200) NOT NULL,
             "OperatorTypeName" varchar(50) NOT NULL,
-            "OperatorTypeDescription" varchar(50) NOT NULL
+            "OperatorTypeDescription" varchar(50) NOT NULL,
+            "StartTime" timestamp without time zone,
+            "EndTime" timestamp without time zone
             )
             """;
         await connection.ExecuteAsync(sql);

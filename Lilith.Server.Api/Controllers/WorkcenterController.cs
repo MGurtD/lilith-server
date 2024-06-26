@@ -18,6 +18,6 @@ public class WorkcenterController(IWorkcenterService workcenterservice) : Contro
         {
             return BadRequest();
         }
-        return Ok(new GenericResponse<List<Workcenter>>(true, result));
+        return Ok(new GenericResponse<IEnumerable<Workcenter>>(true, result));
     }
 }

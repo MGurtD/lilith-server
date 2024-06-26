@@ -1,35 +1,121 @@
-﻿using Lilith.Server.Entities;
+﻿using Lilith.Server.Contracts.Responses;
+using Lilith.Server.Entities;
 using Lilith.Server.Repositories;
+using Microsoft.OpenApi.Models;
+using System.Text.Json;
 
-namespace Lilith.Server.Services
+namespace Lilith.Server.Services;
+
+public interface IOperatorService
 {
-    public interface IOperatorService
+    Task<bool> SetOperatorToWorkcenter(Guid operatorId, Guid workcenterId);
+    Task<bool> UnsetOperatorFromWorkcenter(Guid operatorId, Guid workcenterId);
+}
+
+public class OperatorService : IOperatorService
+{
+    private readonly IOperatorRepository _operatorRepository;
+
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IWorkcenterService _workcenterService;
+
+    public OperatorService(IOperatorRepository operatorRepository, IHttpClientFactory httpClientFactory, IWorkcenterService workcenterService)
     {
-        Task<bool> ClockIn(Guid OperatorId, Guid WorkcenterId);
-        Task<bool> ClockOut(Guid OperatorId, Guid WorkcenterId);
+        _operatorRepository = operatorRepository;
+        _httpClientFactory = httpClientFactory;
+        _workcenterService = workcenterService;
     }
 
-    public class OperatorService(IHistoricRowRespository historicRowRespository) : IOperatorService
+    public async Task<OperatorResponse?> GetOperatorById(Guid operatorId)
     {
-        private readonly IHistoricRowRespository _historicRowRespository = historicRowRespository;
-
-        public async Task<bool> ClockIn(Guid OperatorId, Guid WorkcenterId)
+        try
         {
-            await _historicRowRespository.Create(new HistoricRow
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.GetAsync($"https://localhost:7284/api/Operator/{operatorId}");
+            if (response.IsSuccessStatusCode)
             {
-                WorkcenterId = WorkcenterId,
-                StartTime = DateTime.Now,
-                EndTime = DateTime.Now,
-                Id = Guid.NewGuid()
-            });
+                var responseString = await response.Content.ReadAsStringAsync();
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+                var result = JsonSerializer.Deserialize<OperatorResponse>(responseString, options);
+                return result;
+            }
+            return null;
 
-            return true;
         }
-
-        public async Task<bool> ClockOut(Guid OperatorId, Guid WorkcenterId)
+        catch (Exception ex)
         {
-            return true;
+            Console.WriteLine(ex.ToString());
+            return null;
         }
-
     }
+
+    public async Task<OperatorTypeResponse?> GetOperatorTypeById(Guid operatortypeId)
+    {
+        try
+        {
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.GetAsync($"https://localhost:7284/api/OperatorType/{operatortypeId}");
+            if (response.IsSuccessStatusCode)
+            {
+                var responseString = await response.Content.ReadAsStringAsync();
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+                var result = JsonSerializer.Deserialize<OperatorTypeResponse>(responseString, options);
+                return result;
+            }
+            return null;
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+            return null;
+        }
+    }
+
+    private async Task<Operator>CreateOperator(Guid operatorId)
+    {
+        var _operator = new Operator { };
+        var operatorResponse = await GetOperatorById(operatorId);
+        if (operatorResponse == null) { return _operator; }
+        var operatorTypeResponse = await GetOperatorTypeById(operatorResponse.OperatorTypeId);
+        if (operatorTypeResponse == null) { return _operator; }
+        _operator = new Operator
+        {
+            OperatorId = operatorResponse.Id,
+            OperatorCode = operatorResponse.Code,
+            OperatorName = operatorResponse.Surname + ", " + operatorResponse.Name,
+            OperatorTypeName = operatorTypeResponse.Code,
+            OperatorTypeDescription = operatorTypeResponse.Description
+        };
+        return _operator;
+    }
+
+    public async Task<bool> SetOperatorToWorkcenter(Guid operatorId, Guid workcenterId)
+    {
+        var _operator = await CreateOperator(operatorId);
+        if(! await _operatorRepository.SetOperatorToWorkcenter(_operator, workcenterId))
+        {
+            return false;
+        }
+        await _workcenterService.LoadWorkcenterCache();
+        return true;
+    }
+
+    public async Task<bool> UnsetOperatorFromWorkcenter(Guid operatorId, Guid workcenterId)
+    {
+        var _operator = await CreateOperator(operatorId);
+        if (!await _operatorRepository.UnsetOperatorFromWorkcenter(_operator, workcenterId))
+        {
+            return false;
+        }
+        await _workcenterService.LoadWorkcenterCache();
+        return true;
+    }
+
 }

@@ -6,7 +6,7 @@ namespace Lilith.Server.Services
     public interface IWorkcenterService
     {
         Task LoadWorkcenterCache();
-        Task<List<Workcenter>> GetAllWorkcenters();
+        Task<IEnumerable<Workcenter>> GetAllWorkcenters();
         Task<bool> KeepAliveWorkcenter(Guid workcenterId, DateTime timestamp);
         Task<Workcenter> GetWorkcenterById(Guid workcenterId);
     }
@@ -24,7 +24,7 @@ namespace Lilith.Server.Services
             WorkcenterCache.WorkcenterRT = await _workcenterRepository.GetAllWorkcenters();
         }
 
-        public async Task<List<Workcenter>> GetAllWorkcenters()
+        public async Task<IEnumerable<Workcenter>> GetAllWorkcenters()
         {
             return WorkcenterCache.WorkcenterRT;
         }

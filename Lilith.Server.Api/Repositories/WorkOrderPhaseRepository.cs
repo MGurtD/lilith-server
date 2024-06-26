@@ -24,7 +24,7 @@ public class WorkOrderPhaseRepository : IWorkOrderPhaseRepository
         using var connection = _context.CreateConnection();
         var sql = """
             SET TIMEZONE='Europe/Madrid';
-            INSERT INTO realtime."Workcenters"("WorkcenterId", "WorkOrderCode", "ReferenceCode", "ReferenceDescription", 
+            INSERT INTO realtime."WorkOrders"("WorkcenterId", "WorkOrderCode", "ReferenceCode", "ReferenceDescription", 
                                                 "PhaseId", "PhaseCode", "PhaseDescription", "PhaseStartTime", "PhaseEndTime",
                                                 "CounterOk", "CounterKo")
             VALUES(@WorkcenterId, @WorkOrderCode, @ReferenceCode, @ReferenceDescription,
@@ -53,11 +53,11 @@ public class WorkOrderPhaseRepository : IWorkOrderPhaseRepository
     {
         using var connection = _context.CreateConnection();
         var sql = """
-            DELETE FROM realtime."Workcenters" WHERE "WorkcenterId" = @WorkcenterId AND "PhaseId" = @PhaseId
+            DELETE FROM realtime."WorkOrders" WHERE "WorkcenterId" = @WorkcenterId AND "PhaseId" = @PhaseId
             """;
         var affectedRows = await connection.ExecuteAsync(sql, new
         {
-            workcenterId = workcenterId,
+            WorkcenterId = workcenterId,
             PhaseId = workorderphase.PhaseId
 
         });

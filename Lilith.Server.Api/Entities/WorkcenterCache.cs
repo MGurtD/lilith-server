@@ -2,6 +2,6 @@
 {
     public class WorkcenterCache
     {
-        public static List<Workcenter> WorkcenterRT { get; set; } = new List<Workcenter>();
+        public static IEnumerable<Workcenter> WorkcenterRT { get; set; } = new List<Workcenter>();
     }
 }

@@ -9,17 +9,25 @@ public class OperatorController(IOperatorService operatorService) : ControllerBa
 {
     private readonly IOperatorService _operatorService = operatorService;
 
-    [HttpPost("ClockIn")]
-    public async Task<IActionResult> ClockIn([FromBody] ClockInOutRequest request)
+    [HttpPost("/Operator/ClockIn")]
+    public async Task<IActionResult> ClockIn([FromBody] OperatorRequest request)
     {
-        var result = await _operatorService.ClockIn(request.OperatorId, request.WorkcenterId);
+        if (!ModelState.IsValid)
+        {
+            return BadRequest();
+        }
+        var result = await _operatorService.SetOperatorToWorkcenter(request.OperatorId, request.WorkcenterId);
         return Ok(new GenericResponse<bool>(result));
     }
 
-    [HttpPost("ClockOut")]
-    public async Task<IActionResult> ClockOut([FromBody] ClockInOutRequest request)
+    [HttpPost("/Operator/ClockOut")]
+    public async Task<IActionResult> ClockOut([FromBody] OperatorRequest request)
     {
-        var result = await _operatorService.ClockOut(request.OperatorId, request.WorkcenterId);
+        if (!ModelState.IsValid)
+        {
+            return BadRequest();
+        }
+        var result = await _operatorService.UnsetOperatorFromWorkcenter(request.OperatorId, request.WorkcenterId);
         return Ok(new GenericResponse<bool>(result));
     }
 

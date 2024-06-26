@@ -116,6 +116,7 @@ public class WorkOrderPhaseService:IWorkOrderPhaseService
             WorkOrderCode = workorder.Code,
             ReferenceCode = reference.Code,
             ReferenceDescription = reference.Description,
+            PhaseId = workOrderPhaseId,
             PhaseCode = phase.Code,
             PhaseDescription = phase.Description
         };
