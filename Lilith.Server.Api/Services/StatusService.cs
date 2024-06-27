@@ -1,5 +1,6 @@
 ﻿using Lilith.Server.Contracts.Responses;
 using Lilith.Server.Repositories;
+using Microsoft.Extensions.Configuration;
 using System.Text.Json;
 
 namespace Lilith.Server.Services;
@@ -14,18 +15,22 @@ public class StatusService:IStatusService
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IStatusRepository _statusRepository;
     private readonly IWorkcenterService _workcenterService;
-    public StatusService(IHttpClientFactory httpClientFactory, IStatusRepository statusRepository, IWorkcenterService workcenterService)
+    private readonly IConfiguration _configuration;
+    private readonly string _apiUrl;
+    public StatusService(IHttpClientFactory httpClientFactory, IStatusRepository statusRepository, IWorkcenterService workcenterService, IConfiguration configuration)
     {
         _httpClientFactory = httpClientFactory;
         _statusRepository = statusRepository;
         _workcenterService = workcenterService;
+        _configuration = configuration;
+        _apiUrl = _configuration["ExternalConnections:Default"] ?? throw new ArgumentNullException("ApiUrls");
     }
     public async Task<StatusResponse?> GetStatusById(Guid statusId)
     {
         try
         {
             var client = _httpClientFactory.CreateClient();
-            var response = await client.GetAsync($"https://localhost:7284/api/MachineStatus/{statusId}");
+            var response = await client.GetAsync($"{_apiUrl}/MachineStatus/{statusId}");
             if (response.IsSuccessStatusCode)
             {
                 var responseString = await response.Content.ReadAsStringAsync();
