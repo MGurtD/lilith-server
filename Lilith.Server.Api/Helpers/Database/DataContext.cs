@@ -8,10 +8,10 @@ public class DataContext
 {
     private string _connectionString;
 
-    public DataContext()
+    public DataContext(IConfiguration configuration)
     {
-        var configurationLoader = new ConfigurationLoader();
-        IConfiguration configuration = configurationLoader.LoadConfiguration();
+        //var configurationLoader = new ConfigurationLoader();
+        //IConfiguration configuration = configurationLoader.LoadConfiguration();
 
         _connectionString = configuration["ConnectionStrings:Default"] ?? "";
     }

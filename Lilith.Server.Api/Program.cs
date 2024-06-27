@@ -1,5 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 using Lilith.Server.BackgroundTasks;
+using Lilith.Server.Helpers;
 using Lilith.Server.Helpers.Database;
 using Lilith.Server.Helpers.Middlewares;
 using Lilith.Server.Repositories;
@@ -7,6 +8,9 @@ using Lilith.Server.Services;
 using Swashbuckle.AspNetCore.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var configurationLoader = new ConfigurationLoader();
+var configuration = configurationLoader.LoadConfiguration();
 
 // add services to DI container
 {
@@ -29,6 +33,7 @@ var builder = WebApplication.CreateBuilder(args);
     services.AddSwaggerGen(options => options.OperationFilter<SecurityRequirementsOperationFilter>());
 
     // configure DI for application services
+    services.AddSingleton(configuration);
     services.AddSingleton<DataContext>();
     services.AddScoped<IHistoricRowRespository, HistoricRowRespository>();
     services.AddScoped<IOperatorService, OperatorService>();
