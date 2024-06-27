@@ -9,7 +9,7 @@ public interface IWorkcenterRepository
 {
     Task<IEnumerable<Workcenter>> GetAllWorkcenters();    
     Task<bool> KeepAliveWorkcenter(Guid workcenterId, DateTime timestamp);       
-    Task<Workcenter>GetWorkcenterById(Guid workcenterId);
+    Task<Workcenter?>GetWorkcenterById(Guid workcenterId);
 }
 public class WorkcenterRepository : IWorkcenterRepository
 {
@@ -47,19 +47,19 @@ public class WorkcenterRepository : IWorkcenterRepository
                 if (!workcenterDict.TryGetValue(workcenter.WorkcenterId, out var currentWorkcenter))
                 {
                     currentWorkcenter = workcenter;
-                    currentWorkcenter.Operator = new List<Operator>();
-                    currentWorkcenter.WorkOrderPhase = new List<WorkOrderPhase>();
+                    currentWorkcenter.Operators = new List<Operator>();
+                    currentWorkcenter.WorkOrderPhases = new List<WorkOrderPhase>();
                     workcenterDict.Add(currentWorkcenter.WorkcenterId, currentWorkcenter);
                 }
 
-                if (_operator != null && !currentWorkcenter.Operator.Any(o => o.OperatorId == _operator.OperatorId))
+                if (_operator != null && !currentWorkcenter.Operators.Any(o => o.OperatorId == _operator.OperatorId))
                 {
-                    currentWorkcenter.Operator.Add(_operator);
+                    currentWorkcenter.Operators.Add(_operator);
                 }
 
-                if (workOrderPhase != null && !currentWorkcenter.WorkOrderPhase.Any(wp => wp.PhaseId == workOrderPhase.PhaseId))
+                if (workOrderPhase != null && !currentWorkcenter.WorkOrderPhases.Any(wp => wp.PhaseId == workOrderPhase.PhaseId))
                 {
-                    currentWorkcenter.WorkOrderPhase.Add(workOrderPhase);
+                    currentWorkcenter.WorkOrderPhases.Add(workOrderPhase);
                 }
 
                 return currentWorkcenter;
@@ -98,9 +98,7 @@ public class WorkcenterRepository : IWorkcenterRepository
 
     }
 
-    
-
-    public async Task<Workcenter> GetWorkcenterById(Guid workcenterId)
+    public async Task<Workcenter?> GetWorkcenterById(Guid workcenterId)
     {
         using var connection = _context.CreateConnection();
         var sql = """

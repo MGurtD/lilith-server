@@ -78,14 +78,13 @@ public class OperatorService : IOperatorService
         }
     }
 
-    private async Task<Operator>CreateOperator(Guid operatorId)
+    private async Task<Operator?> CreateOperator(Guid operatorId)
     {
-        var _operator = new Operator { };
         var operatorResponse = await GetOperatorById(operatorId);
-        if (operatorResponse == null) { return _operator; }
+        if (operatorResponse == null) { return null; }
         var operatorTypeResponse = await GetOperatorTypeById(operatorResponse.OperatorTypeId);
-        if (operatorTypeResponse == null) { return _operator; }
-        _operator = new Operator
+        if (operatorTypeResponse == null) { return null; }
+        var _operator = new Operator
         {
             OperatorId = operatorResponse.Id,
             OperatorCode = operatorResponse.Code,

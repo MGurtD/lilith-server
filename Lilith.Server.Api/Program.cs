@@ -30,7 +30,6 @@ var builder = WebApplication.CreateBuilder(args);
 
     // configure DI for application services
     services.AddSingleton<DataContext>();
-    services.AddScoped<IHistoricRowRespository, HistoricRowRespository>();
     services.AddScoped<IOperatorService, OperatorService>();
     services.AddScoped<IWorkcenterRepository, WorkcenterRepository>();
     services.AddScoped<IWorkcenterService, WorkcenterService>();
@@ -47,7 +46,6 @@ var builder = WebApplication.CreateBuilder(args);
     {
         options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
     });
-
 
     services.AddHttpClient();
 

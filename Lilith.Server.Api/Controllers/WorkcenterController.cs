@@ -20,4 +20,15 @@ public class WorkcenterController(IWorkcenterService workcenterservice) : Contro
         }
         return Ok(new GenericResponse<IEnumerable<Workcenter>>(true, result));
     }
+
+    [HttpGet("Workcenter/{id}")]
+    public IActionResult GetWorkcenter(Guid id)
+    {
+        var result = _workcenterService.GetWorkcenterById(id);
+        if(result == null)
+        {
+            return BadRequest();
+        }
+        return Ok(new GenericResponse<Workcenter>(true, result));
+    }
 }
