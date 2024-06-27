@@ -118,7 +118,8 @@ public class DataContext
                                                 "CurrentDay","CurrentTime", "ShiftId", "ShiftName", "ShiftDetailId", "ShiftStartTime", "ShiftEndTime")
             SELECT wc."Id" as "WorkcenterId", wc."Name" as "WorkcenterName", wc."Description" as "WorkcenterDescription",
                    ar."Id" as "AreaId", ar."Name" as "AreaName", ar."Description" as "AreaDescription",
-                   CURRENT_DATE as "Day",CURRENT_TIME as "CurrentTime", sh."Id" as "ShiftId", sh."Name" as "ShiftName", sd."Id" as "ShiftDetailId", NOW() as "ShiftStartTime", NOW() as "ShiftEndTime"
+                   CURRENT_DATE as "Day",CURRENT_TIME as "CurrentTime", sh."Id" as "ShiftId", sh."Name" as "ShiftName", sd."Id" as "ShiftDetailId", CURRENT_DATE::date + sd."StartTime"::time AS "ShiftStartTime",
+                        CURRENT_DATE::date + sd."EndTime"::time AS "ShiftEndTime"
             FROM public."Workcenters" wc
             INNER JOIN public."Areas" ar ON wc."AreaId" = ar."Id"
             INNER JOIN public."Shifts" sh ON wc."ShiftId" = sh."Id"
