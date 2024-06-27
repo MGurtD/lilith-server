@@ -1,6 +1,7 @@
 ﻿using Lilith.Server.Contracts.Responses;
 using Lilith.Server.Entities;
 using Lilith.Server.Repositories;
+using Microsoft.Extensions.Configuration;
 using System.Text.Json;
 
 namespace Lilith.Server.Services;
@@ -18,12 +19,16 @@ public class WorkOrderPhaseService:IWorkOrderPhaseService
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IWorkOrderPhaseRepository _workOrderPhaseRepository;
     private readonly IWorkcenterService _workcenterService;
+    private readonly IConfiguration _configuration;
+    private readonly string _apiUrl;
 
-    public WorkOrderPhaseService(IHttpClientFactory httpClientFactory, IWorkOrderPhaseRepository workOrderPhaseRepository, IWorkcenterService workcenterService)
+    public WorkOrderPhaseService(IHttpClientFactory httpClientFactory, IWorkOrderPhaseRepository workOrderPhaseRepository, IWorkcenterService workcenterService, IConfiguration configuration)
     {
         _httpClientFactory = httpClientFactory;
         _workOrderPhaseRepository = workOrderPhaseRepository;
         _workcenterService = workcenterService;
+        _configuration = configuration;
+        _apiUrl = _configuration["ExternalConnections:Default"] ?? throw new ArgumentNullException("ApiUrls");
 
     }
 
@@ -32,7 +37,7 @@ public class WorkOrderPhaseService:IWorkOrderPhaseService
         try
         {
             var client = _httpClientFactory.CreateClient();
-            var response = await client.GetAsync($"https://localhost:7284/api/WorkOrder/Phase/{workOrderPhaseId}");
+            var response = await client.GetAsync($"{_apiUrl}/WorkOrder/Phase/{workOrderPhaseId}");
             if (response.IsSuccessStatusCode)
             {
                 var responseString = await response.Content.ReadAsStringAsync();
@@ -57,7 +62,7 @@ public class WorkOrderPhaseService:IWorkOrderPhaseService
         try
         {
             var client = _httpClientFactory.CreateClient();
-            var response = await client.GetAsync($"https://localhost:7284/api/WorkOrder/{workOrderId}");
+            var response = await client.GetAsync($"{_apiUrl}/WorkOrder/{workOrderId}");
             if (response.IsSuccessStatusCode)
             {
                 var responseString = await response.Content.ReadAsStringAsync();
@@ -82,7 +87,7 @@ public class WorkOrderPhaseService:IWorkOrderPhaseService
         try
         {
             var client = _httpClientFactory.CreateClient();
-            var response = await client.GetAsync($"https://localhost:7284/api/Reference/{referenceId}");
+            var response = await client.GetAsync($"{_apiUrl}/Reference/{referenceId}");
             if (response.IsSuccessStatusCode)
             {
                 var responseString = await response.Content.ReadAsStringAsync();

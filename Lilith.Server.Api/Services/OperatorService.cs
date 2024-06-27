@@ -18,20 +18,24 @@ public class OperatorService : IOperatorService
 
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IWorkcenterService _workcenterService;
+    private readonly IConfiguration _configuration;
+    private readonly string _apiUrl;
 
-    public OperatorService(IOperatorRepository operatorRepository, IHttpClientFactory httpClientFactory, IWorkcenterService workcenterService)
+    public OperatorService(IOperatorRepository operatorRepository, IHttpClientFactory httpClientFactory, IWorkcenterService workcenterService, IConfiguration configuration)
     {
         _operatorRepository = operatorRepository;
         _httpClientFactory = httpClientFactory;
         _workcenterService = workcenterService;
+        _configuration = configuration;
+        _apiUrl = _configuration["ExternalConnections:Default"] ?? throw new ArgumentNullException("ApiUrls");
     }
 
     public async Task<OperatorResponse?> GetOperatorById(Guid operatorId)
     {
         try
         {
-            var client = _httpClientFactory.CreateClient();
-            var response = await client.GetAsync($"https://localhost:7284/api/Operator/{operatorId}");
+            var client = _httpClientFactory.CreateClient();            
+            var response = await client.GetAsync($"{_apiUrl}/Operator/{operatorId}");
             if (response.IsSuccessStatusCode)
             {
                 var responseString = await response.Content.ReadAsStringAsync();
@@ -57,7 +61,7 @@ public class OperatorService : IOperatorService
         try
         {
             var client = _httpClientFactory.CreateClient();
-            var response = await client.GetAsync($"https://localhost:7284/api/OperatorType/{operatortypeId}");
+            var response = await client.GetAsync($"{_apiUrl}/OperatorType/{operatortypeId}");
             if (response.IsSuccessStatusCode)
             {
                 var responseString = await response.Content.ReadAsStringAsync();
