@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Lilith.Server.Contracts.Responses;
+﻿namespace Lilith.Server.Contracts.Responses;
 
 public class OperatorResponse
 {
-    public Guid Id { get; set; }
-    public string Code { get; set; }
-    public string Name { get; set; }
-    public string Surname {  get; set; }
-    public Guid OperatorTypeId { get; set; }
+    public required Guid Id { get; set; }
+    public required string Code { get; set; }
+    public required string Name { get; set; }
+    public required string Surname {  get; set; }
+    public required Guid OperatorTypeId { get; set; }
 
 }

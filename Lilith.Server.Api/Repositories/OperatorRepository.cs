@@ -21,8 +21,6 @@ public class OperatorRepository : IOperatorRepository
     {
         try
         {
-
-
             using var connection = _context.CreateConnection();
             var sql = """
             SET TIMEZONE='Europe/Madrid';
@@ -32,21 +30,16 @@ public class OperatorRepository : IOperatorRepository
             var affectedRows = await connection.ExecuteAsync(sql, new
             {
                 WorkcenterId = workcenterId,
-                OperatorId = _operator.OperatorId,
-                OperatorCode = _operator.OperatorCode,
-                OperatorName = _operator.OperatorName,
-                OperatorTypeName = _operator.OperatorTypeName,
-                OperatorTypeDescription = _operator.OperatorTypeDescription
+                _operator.OperatorId,
+                _operator.OperatorCode,
+                _operator.OperatorName,
+                _operator.OperatorTypeName,
+                _operator.OperatorTypeDescription
             });
-            if (affectedRows > 0)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }catch(Exception ex) { 
+
+            return affectedRows > 0;
+        }
+        catch (Exception ex) { 
             Console.WriteLine(ex.ToString());
             return false;
         }
@@ -56,8 +49,6 @@ public class OperatorRepository : IOperatorRepository
     {
         try
         {
-
-
             using var connection = _context.CreateConnection();
             var sql = """
             DELETE FROM realtime."Operators" WHERE "WorkcenterId" = @WorkcenterId AND "OperatorId" = @OperatorId
@@ -65,17 +56,10 @@ public class OperatorRepository : IOperatorRepository
             var affectedRows = await connection.ExecuteAsync(sql, new
             {
                 WorkcenterId = workcenterId,
-                OperatorId = _operator.OperatorId
-
+                _operator.OperatorId
             });
-            if (affectedRows > 0)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+
+            return affectedRows > 0;
         }catch (Exception ex)
         {
             Console.WriteLine(ex.ToString());

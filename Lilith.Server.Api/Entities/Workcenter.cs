@@ -30,7 +30,7 @@
         public DateTime? PhaseEndTime { get; set;}
         public decimal CounterOk { get; set; }
         public decimal CounterKo { get; set; }
-        public List<Operator>? Operator { get; set; }        
-        public List<WorkOrderPhase>? WorkOrderPhase { get; set; }
+        public List<Operator>? Operators { get; set; }        
+        public List<WorkOrderPhase>? WorkOrderPhases { get; set; }
     }
 }

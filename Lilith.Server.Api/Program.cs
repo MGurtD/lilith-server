@@ -35,7 +35,6 @@ var configuration = configurationLoader.LoadConfiguration();
     // configure DI for application services
     services.AddSingleton(configuration);
     services.AddSingleton<DataContext>();
-    services.AddScoped<IHistoricRowRespository, HistoricRowRespository>();
     services.AddScoped<IOperatorService, OperatorService>();
     services.AddScoped<IWorkcenterRepository, WorkcenterRepository>();
     services.AddScoped<IWorkcenterService, WorkcenterService>();
@@ -52,7 +51,6 @@ var configuration = configurationLoader.LoadConfiguration();
     {
         options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
     });
-
 
     services.AddHttpClient();
 
