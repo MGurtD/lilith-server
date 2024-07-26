@@ -4,6 +4,7 @@ WORKDIR /app
 EXPOSE 5000
 
 
+
 FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
 WORKDIR /src
 COPY ["Lilith.Server.Api/Lilith.Server.Api.csproj", "Lilith.Server.Api/"]

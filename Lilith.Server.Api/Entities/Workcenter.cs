@@ -15,6 +15,7 @@
         public Guid ShiftDetailId { get; set; }
         public DateTime ShiftStartTime { get; set; }
         public DateTime ShiftEndTime { get; set; }
+        public bool? IsProductiveTime { get; set; }
         public int WorkcenterDataId { get; set; }
         public string StatusName { get; set; } = string.Empty;
         public string StatusDescription { get; set; } = string.Empty;

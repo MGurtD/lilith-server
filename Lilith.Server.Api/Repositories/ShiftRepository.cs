@@ -28,7 +28,8 @@ namespace Lilith.Server.Repositories;
                     SET TIMEZONE='Europe/Madrid';
                     SELECT  s."Id" as "ShiftId", sd."Id" as ShiftDetailId,s."Name" as "ShiftName", 
                             CURRENT_DATE::date AS "Day", CURRENT_DATE::date + sd."StartTime"::time AS "ShiftStartTime",
-                            CURRENT_DATE::date + sd."EndTime"::time AS "ShiftEndTime"
+                            CURRENT_DATE::date + sd."EndTime"::time AS "ShiftEndTime",
+                            sd."IsProductiveTime"
                     FROM public."ShiftDetails" sd
                         INNER JOIN public."Shifts" s ON sd."ShiftId" = s."Id"
                     WHERE sd."ShiftId" = @ShiftId 

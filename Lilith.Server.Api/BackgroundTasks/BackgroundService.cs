@@ -45,13 +45,13 @@ public class MyBackgroundService : BackgroundService
 
                         var workcenterService = scope.ServiceProvider.GetRequiredService<IWorkcenterService>();
                         var shiftService = scope.ServiceProvider.GetRequiredService<IShiftService>();
-                        //var workcenterDataService = scope.ServiceProvider.GetRequiredService<IWorkcenterDataService>();
-                        //var hd_workcenterStatusService = scope.ServiceProvider.GetRequiredService<IHD_WorkcenterStatusService>();
+
 
                         // Access cached workcenters
                         var workcenters = await workcenterService.GetAllWorkcenters();
                         foreach (var workcenter in workcenters)
                         {
+
                             if ((workcenter.ShiftId is null) || (workcenter.ShiftId.Value.Equals("00000000-0000-0000-0000-000000000000")))
                             {
                                 continue;
@@ -60,46 +60,39 @@ public class MyBackgroundService : BackgroundService
                             //Comparar, si es el que toca, actualitzar el endTime                    
                             //Si no es el que toca canviar y posar el shiftstarttime, com a starttime del centre
                             var shiftDetail = await shiftService.GetCurrentShiftDetail(workcenter.ShiftId.Value, currentTime);
-                            //var workcenterstatus = await hd_workcenterStatusService.GetCurrentWorkcenterStatus(workcenter.WorkcenterDataId);
+                            // Construir objecte workcenter
+                            
+
                             if (shiftDetail != null)
                             {
                                 DateOnly workcenterDate = DateOnly.FromDateTime(workcenter.CurrentDay);
                                 if (shiftDetail.ShiftDetailId == workcenter.ShiftDetailId && workcenterDate.Equals(currentDate))
                                 {
-                                    if (!await workcenterService.KeepAliveWorkcenter(workcenter.WorkcenterId, currentDateTime))
+                                    if (!await workcenterService.KeepAliveWorkcenter(workcenter, currentDateTime))
                                     {
                                         _logger.LogInformation("Error keepalive al centre: " + workcenter.WorkcenterName + " Data " + currentDateTime);
                                     }
-                                    workcenter.ShiftEndTime = currentDateTime;
-                                    workcenter.CurrentTime = currentDateTime.TimeOfDay;
-                                    if(workcenter.StatusName.Length > 0)
-                                    {
-                                        workcenter.StatusEndTime = currentDateTime;
-                                    }
-                                    if(workcenter.PhaseCode.Length > 0)
-                                    {
-                                        workcenter.PhaseEndTime = currentDateTime;
-                                    }
                                 }
                                 else
-                                {
+                                {                                    
+                                    workcenter.IsProductiveTime = shiftDetail.IsProductiveTime;
+                                    workcenter.ShiftDetailId = shiftDetail.ShiftDetailId;                                    
+                                    workcenter.CurrentTime = currentDateTime.TimeOfDay;
                                     var shiftStartTime = shiftDetail.ShiftStartTime;
                                     TimeSpan timeFromShiftStartTime = shiftStartTime.TimeOfDay;
+                                    TimeSpan timeFromShiftEndTime = shiftDetail.ShiftEndTime.TimeOfDay;
                                     DateTime currentToday = DateTime.Today;
-                                    DateTime currentBuildDateTime = currentToday.Add(timeFromShiftStartTime);
+                                    workcenter.CurrentDay = currentToday;
+                                    workcenter.ShiftStartTime = currentToday.Add(timeFromShiftStartTime);
+                                    workcenter.ShiftEndTime = currentToday.Add(timeFromShiftEndTime);
 
+                                    var dataId = await workcenterService.CreateWorkcenterData(workcenter);
+                                    workcenter.WorkcenterDataId = dataId;
 
-
-                                    //TORN                            
-                                    if (!await shiftService.SetShiftDetailToWorkcenter(shiftDetail, workcenter.WorkcenterId))
+                                    if(!await workcenterService.SetDataToWorkcenter(workcenter))
                                     {
-                                        _logger.LogInformation("Error al canviar el torn al centre: " + workcenter.WorkcenterName + " Data " + currentBuildDateTime);
+                                        _logger.LogInformation("Error setting data to workcenter: " + workcenter.WorkcenterName + " Data " + workcenter);
                                     }
-                                    workcenter.ShiftDetailId = shiftDetail.ShiftDetailId;
-
-
-
-
                                 }
                             }
                         }

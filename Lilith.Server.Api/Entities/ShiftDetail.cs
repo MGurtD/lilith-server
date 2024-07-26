@@ -8,5 +8,6 @@
         public DateTime Day {  get; set; }
         public DateTime ShiftStartTime { get; set; }
         public DateTime ShiftEndTime { get; set; }
+        public bool IsProductiveTime { get; set; }
     }
 }

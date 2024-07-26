@@ -8,8 +8,10 @@ namespace Lilith.Server.Repositories;
 public interface IWorkcenterRepository
 {
     Task<IEnumerable<Workcenter>> GetAllWorkcenters();    
-    Task<bool> KeepAliveWorkcenter(Guid workcenterId, DateTime timestamp);       
+    Task<bool> KeepAliveWorkcenter(Workcenter workcenter, DateTime timestamp);       
     Task<Workcenter?>GetWorkcenterById(Guid workcenterId);
+    Task<int>CreateWorkcenterData(Workcenter workcenter);
+    Task<bool> SetDataToWorkcenter(Workcenter workcenter);
 }
 public class WorkcenterRepository : IWorkcenterRepository
 {
@@ -71,7 +73,7 @@ public class WorkcenterRepository : IWorkcenterRepository
     }
 
 
-    public async Task<bool> KeepAliveWorkcenter(Guid workcenterId, DateTime timestamp)
+    public async Task<bool> KeepAliveWorkcenter(Workcenter workcenter, DateTime timestamp)
     {
         using var connection = _context.CreateConnection();
         var sql = """
@@ -79,20 +81,29 @@ public class WorkcenterRepository : IWorkcenterRepository
             UPDATE realtime."Workcenters"
             SET "CurrentTime" = @Timestamp
             WHERE "WorkcenterId" = @WorkcenterId;
-            UPDATE realtime."Operators"
+
+            UPDATE data."WorkcenterShift"
             SET "EndTime" = @Timestamp
-            WHERE "WorkcenterId" = @WorkcenterId;
-            UPDATE realtime."WorkOrders"
-            SET "PhaseEndTime" = @Timestamp
-            WHERE "WorkcenterId" = @WorkcenterId;
+            WHERE "Id" = @WorkcenterDataId
+            
             """;
-        var affectedRows = await connection.ExecuteAsync(sql, new { Timestamp = timestamp, WorkcenterId = workcenterId });
-        if (affectedRows > 0)
+        try
         {
-            return true;
-        }
-        else
+            var affectedRows = await connection.ExecuteAsync(sql, 
+                new { Timestamp = timestamp, 
+                    WorkcenterId = workcenter.WorkcenterId, 
+                    WorkcenterDataId = workcenter.WorkcenterDataId });
+            if (affectedRows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }catch(Exception ex)
         {
+            Console.WriteLine(ex.ToString());
             return false;
         }
 
@@ -118,5 +129,78 @@ public class WorkcenterRepository : IWorkcenterRepository
                 """;
         var result = connection.QuerySingle<Workcenter>(sql, new { Id = workcenterId });
         return result;
+    }
+
+    public async Task<int> CreateWorkcenterData(Workcenter workcenter)
+    {
+        using var connection = _context.CreateConnection();
+        var sql = """
+                SET TIMEZONE='Europe/Madrid';
+                INSERT INTO data."WorkcenterShift"("Day", "WorkcenterId", "WorkcenterName", "AreaId", "AreaName", "ShiftId", "ShiftName", 
+                                                   "ShiftDetailId", "IsProductiveTime", "StartTime", "EndTime")
+                VALUES(@Day, @WorkcenterId, @WorkcenterName, @AreaId, @AreaName, @ShiftId, @ShiftName,
+                        @ShiftDetailId, @IsProductiveTime, @StartTime, NOW() )
+                RETURNING "Id";
+            """;
+        var result = await connection.QuerySingleAsync<int>(sql, new
+        {
+            Day = workcenter.CurrentDay,
+            WorkcenterId = workcenter.WorkcenterId,
+            WorkcenterName = workcenter.WorkcenterName,
+            AreaId = workcenter.AreaId,
+            AreaName = workcenter.AreaName,
+            ShiftId = workcenter.ShiftId,
+            ShiftName = workcenter.ShiftName,
+            ShiftDetailId = workcenter.ShiftDetailId,
+            IsProductiveTime = workcenter.IsProductiveTime,
+            StartTime = workcenter.ShiftStartTime            
+        });
+        return result;
+    }
+
+    public async Task<bool> SetDataToWorkcenter(Workcenter workcenter)
+    {
+        using var connection = _context.CreateConnection();
+        var sql = """
+                SET TIMEZONE='Europe/Madrid';
+                UPDATE realtime."Workcenters"
+                SET "ShiftId" = @ShiftId, 
+                    "ShiftName" = @ShiftName, 
+                    "ShiftDetailId" = @ShiftDetailId, 
+                    "ShiftStartTime" = @ShiftStartTime, 
+                    "ShiftEndTime" = @ShiftEndTime,
+                    "CurrentDay" = @CurrentDay,
+                    "CurrentTime" = @CurrentTime,
+                    "WorkcenterDataId" = @WorkcenterDataId
+                WHERE "WorkcenterId" = @WorkcenterId
+            """;
+        try
+        {                        
+            var affectedRows = await connection.ExecuteAsync(sql, new
+            {
+                ShiftId = workcenter.ShiftId,
+                ShiftName = workcenter.ShiftName,
+                ShiftDetailId = workcenter.ShiftDetailId,
+                ShiftStartTime = workcenter.ShiftStartTime,
+                ShiftEndTime = workcenter.ShiftEndTime,
+                CurrentDay = workcenter.CurrentDay,
+                CurrentTime = workcenter.CurrentTime,
+                WorkcenterDataId = workcenter.WorkcenterDataId,
+                WorkcenterId = workcenter.WorkcenterId
+            });
+            if (affectedRows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+            return false;
+        }
     }
 }
